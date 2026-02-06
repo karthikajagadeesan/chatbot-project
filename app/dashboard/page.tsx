@@ -248,7 +248,7 @@ export default function DashboardPage() {
               </div>
 
               <button className="w-full text-left px-4 py-3 bg-primary/10 border border-primary/20 rounded-lg hover:bg-primary/20 transition-colors">
-                <p className="text-sm">I have a question about my order</p>
+                <p className="text-sm">Can you suggest a similar product</p>
               </button>
             </div>
 
