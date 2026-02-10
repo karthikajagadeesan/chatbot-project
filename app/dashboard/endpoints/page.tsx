@@ -11,6 +11,8 @@ export default function EndpointsPage() {
   const [user, setUser] = useState<any>(null);
   const [endpoints, setEndpoints] = useState<ApiEndpoint[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showCrawlModal, setShowCrawlModal] = useState(false);
+  const [selectedEndpoints, setSelectedEndpoints] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [newEndpoint, setNewEndpoint] = useState({
     name: '',
@@ -99,7 +101,41 @@ export default function EndpointsPage() {
   };
 
   const handleTriggerCrawl = () => {
-    router.push('/account');
+    if (endpoints.length === 1) {
+      // If only 1 endpoint, trigger directly
+      router.push('/account');
+    } else {
+      // If 2+ endpoints, show selection modal
+      setShowCrawlModal(true);
+      setSelectedEndpoints(endpoints.map(ep => ep.id)); // Select all by default
+    }
+  };
+
+  const handleConfirmCrawl = () => {
+    if (selectedEndpoints.length === 0) {
+      alert('Please select at least one endpoint');
+      return;
+    }
+    
+    // Pass selected endpoint IDs to account page via query params
+    const endpointIds = selectedEndpoints.join(',');
+    router.push(`/account?endpoints=${endpointIds}`);
+  };
+
+  const toggleEndpointSelection = (id: string) => {
+    setSelectedEndpoints(prev => 
+      prev.includes(id) 
+        ? prev.filter(epId => epId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedEndpoints.length === endpoints.length) {
+      setSelectedEndpoints([]);
+    } else {
+      setSelectedEndpoints(endpoints.map(ep => ep.id));
+    }
   };
 
   const getEndpointIcon = (type: string) => {
@@ -132,9 +168,6 @@ export default function EndpointsPage() {
               <p className="text-sm text-gray-400">Configure your data sources</p>
             </div>
           </div>
-          {/* <button className="p-2 hover:bg-dark-100 rounded-lg transition-colors">
-            <span className="text-xl">⚙️</span>
-          </button> */}
         </div>
       </div>
 
@@ -233,7 +266,9 @@ export default function EndpointsPage() {
               <span>Trigger Manual Crawl</span>
             </button>
             <p className="text-sm text-gray-400 text-center mt-3">
-              This will fetch and display data from all configured endpoints in your account page
+              {endpoints.length === 1 
+                ? 'This will fetch and display data from your configured endpoint'
+                : 'Select which endpoints to crawl and fetch data from'}
             </p>
           </div>
         )}
@@ -302,6 +337,76 @@ export default function EndpointsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Select Endpoints Modal */}
+      {showCrawlModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-6">
+          <div className="bg-dark-200 rounded-2xl p-8 w-full max-w-md border border-gray-800">
+            <h2 className="text-2xl font-bold mb-2">Select Endpoints to Crawl</h2>
+            <p className="text-sm text-gray-400 mb-6">
+              Choose which endpoints you want to fetch data from
+            </p>
+
+            <div className="space-y-3 mb-6">
+              {/* Select All Option */}
+              <div className="flex items-center gap-3 p-3 bg-dark-100 rounded-lg border border-gray-700">
+                <input
+                  type="checkbox"
+                  id="select-all"
+                  checked={selectedEndpoints.length === endpoints.length}
+                  onChange={toggleSelectAll}
+                  className="w-5 h-5 rounded border-gray-600 bg-dark-300 text-primary focus:ring-2 focus:ring-primary"
+                />
+                <label htmlFor="select-all" className="flex-1 cursor-pointer font-medium">
+                  Select All Endpoints
+                </label>
+              </div>
+
+              {/* Individual Endpoints */}
+              {endpoints.map((endpoint) => (
+                <div
+                  key={endpoint.id}
+                  className="flex items-center gap-3 p-3 bg-dark-100 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    id={endpoint.id}
+                    checked={selectedEndpoints.includes(endpoint.id)}
+                    onChange={() => toggleEndpointSelection(endpoint.id)}
+                    className="w-5 h-5 rounded border-gray-600 bg-dark-300 text-primary focus:ring-2 focus:ring-primary"
+                  />
+                  <label htmlFor={endpoint.id} className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{getEndpointIcon(endpoint.endpoint_type)}</span>
+                      <div>
+                        <div className="font-medium">/{endpoint.endpoint_name}</div>
+                        <div className="text-xs text-gray-400">{endpoint.endpoint_type}</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCrawlModal(false)}
+                className="flex-1 btn-secondary py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmCrawl}
+                className="flex-1 btn-primary py-3"
+                disabled={selectedEndpoints.length === 0}
+              >
+                Crawl Selected ({selectedEndpoints.length})
+              </button>
+            </div>
           </div>
         </div>
       )}
