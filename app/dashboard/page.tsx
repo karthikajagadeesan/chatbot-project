@@ -79,15 +79,44 @@ export default function DashboardPage() {
     router.push('/account');
   };
 
-  const getEmbedCode = () => {
-    const userId = user?.id || 'your-user-id';
-    return `<iframe 
-  src="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/embed/${userId}" 
-  width="360"
-  height="600"
-  style="position:fixed;bottom:20px;right:20px;border:none;z-index:9999;">
-</iframe>`;
-  };
+  // Replace the getEmbedCode function in your dashboard component with this:
+
+const getEmbedCode = () => {
+  const userId = user?.id || 'your-user-id';
+  return `<!-- Chatbot Widget -->
+<div id="chatbot-widget">
+  <button id="chatbot-toggle" style="position:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:none;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:9998;display:flex;align-items:center;justify-content:center;font-size:28px;transition:transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+    🤖
+  </button>
+  <iframe 
+    id="chatbot-iframe"
+    src="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/embed/${userId}" 
+    style="position:fixed;bottom:90px;right:20px;width:360px;height:600px;
+    border:none;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;
+    display:none;transition:opacity 0.3s ease;"
+  ></iframe>
+</div>
+<script>
+  (function() {
+    var toggle = document.getElementById('chatbot-toggle');
+    var iframe = document.getElementById('chatbot-iframe');
+    var isOpen = false;
+    
+    toggle.addEventListener('click', function() {
+      isOpen = !isOpen;
+      if (isOpen) {
+        iframe.style.display = 'block';
+        setTimeout(function() { iframe.style.opacity = '1'; }, 10);
+        toggle.innerHTML = '✕';
+      } else {
+        iframe.style.opacity = '0';
+        setTimeout(function() { iframe.style.display = 'none'; }, 300);
+        toggle.innerHTML = '🤖';
+      }
+    });
+  })();
+</script>`;
+};
 
   const copyEmbedCode = () => {
     navigator.clipboard.writeText(getEmbedCode());
