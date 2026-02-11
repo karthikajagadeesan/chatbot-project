@@ -61,7 +61,7 @@ export default function HomePage() {
           </div>
 
           <Link 
-            href="/sign-in"
+            href="/account"
             className="btn-primary"
           >
             Try for Free
