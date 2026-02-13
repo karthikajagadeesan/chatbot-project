@@ -35,8 +35,8 @@ import {
   ChevronDown,
   ChevronRight
 } from "lucide-react";
-import { Link, useTransitionRouter } from "next-view-transitions";
-import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { SignOut } from "./action";
 import { ThemeToggle } from "./theme-toggle";
@@ -48,36 +48,36 @@ const menuItems = [
     href: "/dashboard",
     icon: LayoutDashboardIcon,
   },
+  // {
+  //   label: "Events",
+  //   href: "/events",
+  //   icon: CalendarDaysIcon,
+  // },
   {
-    label: "Events",
-    href: "/events",
-    icon: CalendarDaysIcon,
-  },
-  {
-    label: "Customers",
+    label: "Configure",
     href: "/customers",
     icon: UsersIcon,
   },
-  {
-    label: "Staffs",
-    href: "/staffs",
-    icon: UserStarIcon,
-  },
-  {
-    label: "Roles",
-    icon: ShieldCheck,
-    href: "/roles",
-  },
-  {
-    label: "Ticket Template",
-    href: "/ticket-template",
-    icon: Ticket,
-  },
-  {
-    label: "Reports",
-    href: "/reports",
-    icon: FileTextIcon,
-  },
+  // {
+  //   label: "Staffs",
+  //   href: "/staffs",
+  //   icon: UserStarIcon,
+  // },
+  // {
+  //   label: "Roles",
+  //   icon: ShieldCheck,
+  //   href: "/roles",
+  // },
+  // {
+  //   label: "Ticket Template",
+  //   href: "/ticket-template",
+  //   icon: Ticket,
+  // },
+  // {
+  //   label: "Reports",
+  //   href: "/reports",
+  //   icon: FileTextIcon,
+  // },
   {
     label: "Settings",
     href: "/settings",
@@ -131,7 +131,7 @@ const SidebarMenuItem = ({ item, pathname, isCollapsed, setIsSidebarOpen }: { it
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useTransitionRouter();
+  const router = useRouter();
   const isSidebarOpen = usegeneralStore((state) => state.isSidebarOpen);
   const isCollapsed = usegeneralStore((state) => state.isCollapsed);
   const setIsSidebarOpen = usegeneralStore((state) => state.setIsSidebarOpen);

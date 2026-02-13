@@ -15,7 +15,7 @@ import Link from "next/link"
 import { toast } from "sonner"
 import { Eye, EyeOff } from "lucide-react"
 
-export default function SignUpAdmin() {
+export default function SignUpUser() {
   // const router = useRouter()
   // const signUp = useAuthStore((state) => state.signUp)
   const [first_name, setFirst_name] = useState("")

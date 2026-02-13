@@ -11,7 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 
 export interface BreadcrumbItemType {
   label: string;

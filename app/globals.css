@@ -174,4 +174,5 @@
 
 body {
   letter-spacing: var(--tracking-normal);
+  border: var(--border) ;
 }

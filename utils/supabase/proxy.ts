@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import DomainFinder from '@/helpers/domain-finder'
 
-const AUTH_PATHS = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password']
+const AUTH_PATHS = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password', '/dashboard', '/configure']
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
