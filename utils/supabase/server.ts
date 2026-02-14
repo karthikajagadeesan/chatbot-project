@@ -26,3 +26,7 @@ export const createServer = async (cookieStore: ReturnType<typeof cookies>) => {
         },
     });
 };
+
+export const createClient = async () => {
+    return createServer(cookies());
+};

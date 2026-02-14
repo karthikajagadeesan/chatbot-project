@@ -33,7 +33,8 @@ import {
   UserStarIcon,
   ShieldCheck,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -48,36 +49,16 @@ const menuItems = [
     href: "/dashboard",
     icon: LayoutDashboardIcon,
   },
-  // {
-  //   label: "Events",
-  //   href: "/events",
-  //   icon: CalendarDaysIcon,
-  // },
+  {
+    label: "Chatbots",
+    href: "/agents",
+    icon: MessageSquare,
+  },
   {
     label: "Configure",
-    href: "/customers",
+    href: "/configure",
     icon: UsersIcon,
   },
-  // {
-  //   label: "Staffs",
-  //   href: "/staffs",
-  //   icon: UserStarIcon,
-  // },
-  // {
-  //   label: "Roles",
-  //   icon: ShieldCheck,
-  //   href: "/roles",
-  // },
-  // {
-  //   label: "Ticket Template",
-  //   href: "/ticket-template",
-  //   icon: Ticket,
-  // },
-  // {
-  //   label: "Reports",
-  //   href: "/reports",
-  //   icon: FileTextIcon,
-  // },
   {
     label: "Settings",
     href: "/settings",
