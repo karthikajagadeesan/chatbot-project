@@ -14,10 +14,12 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Eye, EyeOff } from "lucide-react"
+import { signUpUser } from "./action"
+import { useAuthStore } from "@/store/user/authStore"
 
 export default function SignUpUser() {
-  // const router = useRouter()
-  // const signUp = useAuthStore((state) => state.signUp)
+  const router = useRouter()
+  const { setUser } = useAuthStore()
   const [first_name, setFirst_name] = useState("")
   const [last_name, setLast_name] = useState("")
   const [phone_no, setPhone_no] = useState("")
@@ -37,38 +39,28 @@ export default function SignUpUser() {
   }
 
   const handleEmailBlur = async () => {
-    // Clear previous field-level error
     setEmailError("")
-
     if (!email) return
-
-    // Basic format validation before hitting the server
     if (!validateEmailFormat(email)) {
       const message = "Please enter a valid email address"
       setEmailError(message)
       toast.error(message)
       return
     }
-
     setIsCheckingEmail(true)
     try {
       const response = await fetch("/api/auth/check-email", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       })
-
       const data = await response.json()
-
       if (data?.status && data.exists) {
         const message = "This email is already registered"
         setEmailError(message)
         toast.error(message)
       }
     } catch (err) {
-      // Optionally surface this, but don't block user entirely
       console.error("Failed to check email:", err)
     } finally {
       setIsCheckingEmail(false)
@@ -79,7 +71,6 @@ export default function SignUpUser() {
     e.preventDefault()
     setError("")
 
-    // Validate email format
     if (!validateEmailFormat(email)) {
       const message = "Please enter a valid email address"
       setError(message)
@@ -87,21 +78,18 @@ export default function SignUpUser() {
       return
     }
 
-    // If we already know this email is taken, prevent submit
     if (emailError) {
       setError(emailError)
       toast.error(emailError)
       return
     }
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       toast.error("Passwords do not match")
       return
     }
 
-    // Validate password length
     if (password.length < 6) {
       setError("Password must be at least 6 characters long")
       toast.error("Password must be at least 6 characters long")
@@ -109,17 +97,16 @@ export default function SignUpUser() {
     }
 
     setIsLoading(true)
-
     try {
-      // const response = await signUp({ first_name, last_name, phone_no, email, password, confirmPassword })
-
-      // if (response.status) {
-      //   toast.success(response.message)
-      //   router.push("/dashboard")
-      // } else {
-      //   setError(response.message)
-      //   toast.error(response.message)
-      // }
+      const response = await signUpUser({ first_name, last_name, phone_no, email, password })
+      if (response.success && response.data) {
+        toast.success(response.message)
+        setUser(response.data)
+        router.push("/dashboard")
+      } else {
+        setError(response.message)
+        toast.error(response.message)
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred"
       setError(errorMessage)
@@ -179,9 +166,7 @@ export default function SignUpUser() {
               required
               disabled={isLoading || isCheckingEmail}
             />
-            {emailError && (
-              <FieldError>{emailError}</FieldError>
-            )}
+            {emailError && <FieldError>{emailError}</FieldError>}
           </Field>
           <Field>
             <FieldLabel htmlFor="phone_no" required>Phone No</FieldLabel>
@@ -218,11 +203,7 @@ export default function SignUpUser() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 disabled={isLoading}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </Field>
@@ -245,11 +226,7 @@ export default function SignUpUser() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 disabled={isLoading}
               >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </Field>
@@ -268,10 +245,7 @@ export default function SignUpUser() {
         <Field>
           <FieldDescription className="px-6 text-center">
             Already have an account?{" "}
-            <Link
-              href="/sign-in"
-              className="underline underline-offset-4"
-            >
+            <Link href="/sign-in" className="underline underline-offset-4">
               Sign in
             </Link>
           </FieldDescription>
@@ -280,4 +254,3 @@ export default function SignUpUser() {
     </form>
   )
 }
-

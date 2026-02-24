@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import {
     Field,
     FieldDescription,
+    FieldError,
     FieldGroup,
     FieldLabel,
     FieldSeparator,
@@ -18,14 +19,16 @@ import { Eye, EyeOff } from "lucide-react"
 
 export default function SignInUser() {
     const router = useRouter()
-    const [email, setEmail] = useState("")
     const { setUser } = useAuthStore()
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+    const [error, setError] = useState("")
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
+        setError("")
         setIsLoading(true)
         try {
             const response = await signInAdmin({ email, password })
@@ -34,10 +37,12 @@ export default function SignInUser() {
                 setUser(response.data)
                 router.push("/dashboard")
             } else {
+                setError(response.message)
                 toast.error(response.message)
             }
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "An unknown error occurred"
+            setError(errorMessage)
             toast.error(errorMessage)
         } finally {
             setIsLoading(false)
@@ -46,7 +51,6 @@ export default function SignInUser() {
 
     return (
         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-
             <FieldGroup>
               <Field>
                 <Button variant="outline" type="button">
@@ -77,7 +81,11 @@ export default function SignInUser() {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
+                  autoComplete="email"
                 />
               </Field>
               <Field>
@@ -90,12 +98,42 @@ export default function SignInUser() {
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    className="pr-10"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    disabled={isLoading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </Field>
+              {error && (
+                <Field>
+                  <FieldError>{error}</FieldError>
+                </Field>
+              )}
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Signing in..." : "Login"}
+                </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? 
+                  Don&apos;t have an account?{" "}
                   <Link href="/sign-up">
                    Sign Up
                   </Link>

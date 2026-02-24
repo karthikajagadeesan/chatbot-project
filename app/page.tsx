@@ -61,7 +61,7 @@ export default function HomePage() {
           </div>
 
           <Link 
-            href="/account"
+            href="/dashboard"
             className="btn-primary"
           >
             Try for Free
