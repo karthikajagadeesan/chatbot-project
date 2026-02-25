@@ -77,7 +77,7 @@ export async function signInAdmin({ email, password }: { email: string; password
     }
 }
 
-export async function signInSuperAdmin({ email, password }: { email: string; password: string }): Promise<Response<Tables<'super_admins'>>> {
+export async function signInSuperAdmin({ email, password }: { email: string; password: string }): Promise<Response<any>> {
     try {
         const supabase = await createServer(cookies());
 
@@ -100,11 +100,11 @@ export async function signInSuperAdmin({ email, password }: { email: string; pas
             };
         }
 
-        const { data: superAdminData, error: superAdminError } = await supabase
-            .from("super_admins")
+        const { data: superAdminData, error: superAdminError } = await (supabase
+            .from("super_admins" as any)
             .select("*")
             .eq("auth_id", data.user.id)
-            .maybeSingle();
+            .maybeSingle() as any);
 
         if (superAdminError || !superAdminData) {
             await supabase.auth.signOut();

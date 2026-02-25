@@ -86,7 +86,7 @@ export async function ingestUrl(
         return {
           agent_id: agentId,
           content: chunk,
-          embedding,
+          embedding: JSON.stringify(embedding),
           metadata: { url, chunk_index: index },
         };
       })
@@ -168,7 +168,7 @@ export async function searchSimilarDocuments(
     const queryEmbedding = await embedText(query);
 
     const { data, error } = await supabase.rpc("match_chatbot_documents", {
-      query_embedding: queryEmbedding,
+      query_embedding: JSON.stringify(queryEmbedding),
       filter_agent_id: agentId,
       match_count: topK,
       match_threshold: threshold,
@@ -176,7 +176,7 @@ export async function searchSimilarDocuments(
 
     if (error) throw new Error(error.message);
 
-    return (data ?? []) as AgentDocument[];
+    return (data ?? []) as unknown as AgentDocument[];
   } catch (err) {
     console.error("[searchSimilarDocuments] error:", err);
     return [];

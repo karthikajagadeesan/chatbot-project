@@ -34,7 +34,8 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronRight,
-  ListChecks
+  ListChecks,
+  FolderOpen
 } from "lucide-react";
 
 import { Link, useTransitionRouter } from "next-view-transitions";
@@ -51,6 +52,11 @@ const menuItems = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboardIcon,
+  },
+  {
+    label: "Projects",
+    href: "/projects",
+    icon: FolderOpen,
   },
   {
     label: "Events",

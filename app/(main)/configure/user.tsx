@@ -19,9 +19,9 @@ import {
     FileJson,
     Globe,
 } from "lucide-react";
-import { Button }   from "@/components/ui/button";
-import { Input }    from "@/components/ui/input";
-import { Label }    from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     Card,
@@ -39,7 +39,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge }    from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
     Dialog,
     DialogContent,
@@ -71,7 +71,7 @@ function PreviewMeta({ p }: { p: EndpointPreview }) {
     return (
         <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
             <MetaRow label="Endpoint" value={p.endpoint} mono />
-            <MetaRow label="Status"   value={p.status}        />
+            <MetaRow label="Status" value={p.status} />
         </div>
     );
 }
@@ -141,7 +141,7 @@ function OpenAPIPreview({ p }: { p: EndpointPreview }) {
                 <span className="text-xs font-semibold">OpenAPI Spec · v{p.spec_version}</span>
             </div>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                <MetaRow label="Title"       value={p.title}       />
+                <MetaRow label="Title" value={p.title} />
                 <MetaRow label="API Version" value={p.api_version} />
                 <MetaRow label="Description" value={p.description} />
                 <MetaRow label="Total Paths" value={String(p.total_paths ?? 0)} />
@@ -227,11 +227,11 @@ function PreviewContent({ data }: { data: EndpointPreview }) {
         <div className="space-y-5 text-sm">
             <PreviewMeta p={data} />
             <hr className="border-border" />
-            {ct === "html"        && <HtmlPreview       p={data} />}
-            {ct === "openapi"     && <OpenAPIPreview     p={data} />}
-            {ct === "json_object" && <JsonObjectPreview  p={data} />}
-            {ct === "array"       && <ArrayPreview       p={data} />}
-            {ct === "unknown"     && (
+            {ct === "html" && <HtmlPreview p={data} />}
+            {ct === "openapi" && <OpenAPIPreview p={data} />}
+            {ct === "json_object" && <JsonObjectPreview p={data} />}
+            {ct === "array" && <ArrayPreview p={data} />}
+            {ct === "unknown" && (
                 <p className="text-xs text-muted-foreground italic">No preview available for this content type.</p>
             )}
         </div>
@@ -241,21 +241,21 @@ function PreviewContent({ data }: { data: EndpointPreview }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function UserConfigure() {
-    const [endpointUrl, setEndpointUrl]          = useState("");
-    const [isSaving, setIsSaving]                = useState(false);
+    const [endpointUrl, setEndpointUrl] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
     const [isLoadingConfigs, setIsLoadingConfigs] = useState(true);
-    const [configs, setConfigs]                  = useState<ConfigWithEndpoints[]>([]);
+    const [configs, setConfigs] = useState<ConfigWithEndpoints[]>([]);
 
-    const [selectedIds, setSelectedIds]     = useState<Set<string>>(new Set());
-    const [selectMode, setSelectMode]       = useState(false);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [selectMode, setSelectMode] = useState(false);
     const [deleteSelOpen, setDeleteSelOpen] = useState(false);
     const [isDeletingAll, setIsDeletingAll] = useState(false);
 
-    const [previewOpen, setPreviewOpen]           = useState(false);
-    const [previewUrl, setPreviewUrl]             = useState("");
-    const [previewData, setPreviewData]           = useState<EndpointPreview | null>(null);
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState("");
+    const [previewData, setPreviewData] = useState<EndpointPreview | null>(null);
     const [isLoadingPreview, setIsLoadingPreview] = useState(false);
-    const [previewError, setPreviewError]         = useState<string | null>(null);
+    const [previewError, setPreviewError] = useState<string | null>(null);
 
     const allEndpoints: ScrapedEndpoint[] = configs.flatMap((c) => c.scraped_endpoints);
 
@@ -294,7 +294,7 @@ export default function UserConfigure() {
         setIsLoadingPreview(true);
         const result = await previewEndpointData(url);
         setIsLoadingPreview(false);
-        if (!result.success) { setPreviewError(result.message); return; }
+        if (!result.success) { setPreviewError(result.message || "An error occurred"); return; }
         setPreviewData(result.data as EndpointPreview);
     };
 
@@ -319,7 +319,7 @@ export default function UserConfigure() {
         });
     };
 
-    const allSelected  = allEndpoints.length > 0 && selectedIds.size === allEndpoints.length;
+    const allSelected = allEndpoints.length > 0 && selectedIds.size === allEndpoints.length;
     const someSelected = selectedIds.size > 0 && !allSelected;
 
     const toggleSelectAll = () => {
@@ -363,8 +363,6 @@ export default function UserConfigure() {
                 heading="Endpoint Configuration"
                 description="Design and manage your public API interface"
                 breadcrumbs={[
-                    { label: "Dashboard", href: "/dashboard" },
-                    { label: "Chartbots", href: "/agents" },
                     { label: "Configure" },
                 ]}
             />
@@ -503,37 +501,34 @@ export default function UserConfigure() {
                                                             <Checkbox
                                                                 checked={selectedIds.has(item.id)}
                                                                 onCheckedChange={() => toggleSelect(item.id)}
-                                                                aria-label={`Select ${item.label}`}
+                                                                aria-label={`Select ${(item as any).label}`}
                                                             />
                                                         </TableCell>
                                                     )}
 
                                                     <TableCell
-                                                        className={`font-mono text-sm max-w-[280px] truncate ${
-                                                            item.status === "SCANNING" ? "text-orange-500" : "text-foreground"
-                                                        }`}
+                                                        className={`font-mono text-sm max-w-[280px] truncate ${item.status === "SCANNING" ? "text-orange-500" : "text-foreground"
+                                                            }`}
                                                         title={item.url}
                                                     >
-                                                        {item.label}
+                                                        {(item as any).label}
                                                     </TableCell>
 
                                                     <TableCell className="text-center">
                                                         <span
-                                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold ${
-                                                                item.status === "FOUND"
-                                                                    ? "text-green-600"
-                                                                    : item.status === "ERROR"
+                                                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold ${item.status === "FOUND"
+                                                                ? "text-green-600"
+                                                                : item.status === "ERROR"
                                                                     ? "text-red-500"
                                                                     : "text-orange-500"
-                                                            }`}
+                                                                }`}
                                                         >
-                                                            <span className={`h-1.5 w-1.5 rounded-full ${
-                                                                item.status === "FOUND"
-                                                                    ? "bg-green-500"
-                                                                    : item.status === "ERROR"
+                                                            <span className={`h-1.5 w-1.5 rounded-full ${item.status === "FOUND"
+                                                                ? "bg-green-500"
+                                                                : item.status === "ERROR"
                                                                     ? "bg-red-400"
                                                                     : "bg-orange-400 animate-pulse"
-                                                            }`} />
+                                                                }`} />
                                                             {item.status}
                                                         </span>
                                                     </TableCell>

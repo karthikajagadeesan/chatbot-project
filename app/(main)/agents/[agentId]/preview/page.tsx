@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAgent } from "@/app/(main)/agents/action";
-import EmbedChatPage from "@/app/embed/[agentId]/page";
+import EmbedChatInterface from "@/app/embed/[projectId]/embed-client";
 import Link from "next/link";
 
 export default function AgentPreviewPage() {
@@ -75,14 +75,10 @@ export default function AgentPreviewPage() {
             {/* ── Chat Widget ─────────────────────────────────────────── */}
             <Card className="flex-1 overflow-hidden shadow-md border">
                 <CardContent className="p-0 h-full">
-                    <EmbedChatPage
-                        agentId={agentId as string}
-                        isPreview={true}
-                        previewConfig={{
-                            primaryColor,
-                            botName,
-                            welcomeMessage: agent?.config?.welcomeMessage ?? "",
-                        }}
+                    <EmbedChatInterface
+                        projectId={agentId as string}
+                        botName={botName}
+                        primaryColor={primaryColor}
                     />
                 </CardContent>
             </Card>

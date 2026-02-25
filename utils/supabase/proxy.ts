@@ -3,7 +3,8 @@ import { NextResponse, type NextRequest } from 'next/server'
 import DomainFinder from '@/helpers/domain-finder'
 
 const GUEST_ONLY_PATHS = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password']
-const PROTECTED_PATHS  = ['/dashboard', '/configure', '/agents', '/settings', '/embed']
+const PROTECTED_PATHS = ['/dashboard', '/configure', '/agents', '/settings', '/projects', '/profile']
+// Note: /api/*, /embed are intentionally NOT in GUEST_ONLY_PATHS — they must be publicly accessible
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({ request })

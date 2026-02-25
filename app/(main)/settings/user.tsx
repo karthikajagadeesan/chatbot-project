@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
 import Header from "@/components/header";
-import { Settings as SettingsIcon } from "lucide-react";
+import { Settings as SettingsIcon, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -15,17 +13,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import BillingCard from "@/components/settings/billing-card";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import type { Tables } from "@/type/database-type";
 
 export default function UserSettings() {
-  const [behaviorType, setBehaviorType] = useState("friendly");
-  const [customPrompt, setCustomPrompt] = useState("");
+  const [subscription, setSubscription] = useState<Tables<'subscriptions'> | null>(null)
+
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .single()
+
+      setSubscription(data)
+    }
+    fetchSubscription()
+  }, [])
 
   return (
     <div>
@@ -34,9 +45,6 @@ export default function UserSettings() {
         heading="Settings"
         description="Manage your account preferences, chatbot configurations, and security."
         breadcrumbs={[
-          { label: "Dashboard", href: "/dashboard" },
-          { label: "Chartbots", href: "/agents" },
-          { label: "Configure", href: "/configure"  },
           { label: "Settings" },
         ]}
       />
@@ -60,7 +68,7 @@ export default function UserSettings() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">   
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input id="fullName" defaultValue="Alex Johnson" />
               </div>
@@ -72,57 +80,40 @@ export default function UserSettings() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2  gap-6">
+        {/* Billing */}
         <Card>
           <CardHeader>
-            <CardTitle>Chatbot Preferences</CardTitle>
-            <CardDescription>Set global defaults for all your managed chatbots.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="behaviorType">Behavior Type</Label>
-              <Select value={behaviorType} onValueChange={setBehaviorType}>
-                <SelectTrigger id="behaviorType" >
-                  <SelectValue placeholder="Select behavior type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="friendly">Friendly and Helpful</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {behaviorType === "custom" && (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="customPrompt">Custom Behavior Instructions</Label>
-                <Textarea
-                  id="customPrompt"
-                  placeholder="Enter your custom prompt or behavior instructions..."
-                  value={customPrompt}
-                  onChange={(e) => setCustomPrompt(e.target.value)}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Security</CardTitle>
-            <CardDescription>Manage your account security settings.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary" />
+              Billing & Subscription
+            </CardTitle>
+            <CardDescription>
+              Manage your plan, payment methods, and billing history via Stripe.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-0.5">
-                <p className="text-sm font-medium">Change Password</p>
-                <p className="text-sm text-muted-foreground">Last changed 3 months ago</p>
-              </div>
-              <Button variant="link">Update</Button>
-            </div>
+            <BillingCard subscription={subscription} />
           </CardContent>
         </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2  gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Security</CardTitle>
+              <CardDescription>Manage your account security settings.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-sm font-medium">Change Password</p>
+                  <p className="text-sm text-muted-foreground">Last changed 3 months ago</p>
+                </div>
+                <Button variant="link">Update</Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-            
+
         <div className="flex justify-end gap-2">
           <Button variant="ghost">Discard Changes</Button>
           <Button>Save All Settings</Button>

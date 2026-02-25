@@ -11,7 +11,7 @@ import { useAppSettingsStore } from "@/store/app-settings-store";
 
 const queryClient = new QueryClient();
 
-export default function UserGlobalProvider({ children, subdomain, appSettings, user }: { children: ReactNode, subdomain: Subdomain | null, appSettings: Tables<'app_settings'>, user?: Tables<'users'> | null }) {
+export default function UserGlobalProvider({ children, subdomain, appSettings, user }: { children: ReactNode, subdomain: Subdomain | null, appSettings: Tables<'app_settings'> | null, user?: Tables<'users'> | null }) {
     const { setSubdomain } = usegeneralStore();
     const { setUser } = useAuthStore();
     const setAppSettings = useAppSettingsStore((state) => state.setSettings);

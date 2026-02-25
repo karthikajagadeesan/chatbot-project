@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { getAgent, updateAgent, deleteAgent } from "@/app/(main)/agents/action";
 import Link from "next/link";
-import EmbedChatPage from "@/app/embed/[agentId]/page";
+import EmbedChatInterface from "@/app/embed/[projectId]/embed-client";
 
 export default function AgentDetailsPage() {
     const { agentId } = useParams();
@@ -299,10 +299,10 @@ export default function AgentDetailsPage() {
                             </span>
                         </CardHeader>
                         <CardContent className="p-0 h-[460px] overflow-hidden bg-slate-100">
-                            <EmbedChatPage
-                                agentId={agentId as string}
-                                isPreview={true}
-                                previewConfig={previewConfig}
+                            <EmbedChatInterface
+                                projectId={agentId as string}
+                                botName={previewConfig.botName}
+                                primaryColor={previewConfig.primaryColor}
                             />
                         </CardContent>
                     </Card>

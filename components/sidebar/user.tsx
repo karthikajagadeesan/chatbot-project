@@ -34,7 +34,8 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronRight,
-  MessageSquare
+  MessageSquare,
+  FolderOpen
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -50,6 +51,11 @@ const menuItems = [
     icon: LayoutDashboardIcon,
   },
   {
+    label: "Projects",
+    href: "/projects",
+    icon: FolderOpen,
+  },
+  {
     label: "Chatbots",
     href: "/agents",
     icon: MessageSquare,
@@ -63,6 +69,11 @@ const menuItems = [
     label: "Settings",
     href: "/settings",
     icon: SettingsIcon,
+  },
+  {
+    label: "Profile",
+    href: "/profile",
+    icon: UserStarIcon,
   },
 ];
 

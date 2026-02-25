@@ -14,99 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
-      //  Chatbot Tables
-      chatbot_agents: {
+      agent_configs: {
         Row: {
+          anthropic_api_key: string | null
+          base_prompt: string | null
+          created_at: string | null
+          embedding_api_key: string | null
+          gemini_api_key: string | null
+          groq_api_key: string | null
           id: string
-          tenant_id: string
+          model: string
           name: string
-          config: Json
-          allowed_domains: string[]
-          created_at: string
+          openai_api_key: string | null
+          project_id: string
+          provider: string
+          updated_at: string | null
         }
         Insert: {
+          anthropic_api_key?: string | null
+          base_prompt?: string | null
+          created_at?: string | null
+          embedding_api_key?: string | null
+          gemini_api_key?: string | null
+          groq_api_key?: string | null
           id?: string
-          tenant_id: string
-          name: string
-          config?: Json
-          allowed_domains?: string[]
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          tenant_id?: string
+          model?: string
           name?: string
-          config?: Json
-          allowed_domains?: string[]
-          created_at?: string
-        }
-        Relationships: []
-      }
-      chatbot_documents: {
-        Row: {
-          id: string
-          tenant_id: string
-          agent_id: string | null
-          content: string
-          embedding: number[] | null
-          metadata: Json
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          tenant_id: string
-          agent_id?: string | null
-          content: string
-          embedding?: number[] | null
-          metadata?: Json
-          created_at?: string
+          openai_api_key?: string | null
+          project_id: string
+          provider?: string
+          updated_at?: string | null
         }
         Update: {
+          anthropic_api_key?: string | null
+          base_prompt?: string | null
+          created_at?: string | null
+          embedding_api_key?: string | null
+          gemini_api_key?: string | null
+          groq_api_key?: string | null
           id?: string
-          tenant_id?: string
-          agent_id?: string | null
-          content?: string
-          embedding?: number[] | null
-          metadata?: Json
-          created_at?: string
+          model?: string
+          name?: string
+          openai_api_key?: string | null
+          project_id?: string
+          provider?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "chatbot_documents_agent_id_fkey"
-            columns: ["agent_id"]
+            foreignKeyName: "agent_configs_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "chatbot_agents"
+            referencedRelation: "projects"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
-      api_endpoints: {
+      agents: {
         Row: {
-          created_at: string | null
-          endpoint_name: string
-          endpoint_url: string
+          allowed_domains: string[] | null
+          config: Json | null
+          created_at: string
           id: string
-          type: string
-          updated_at: string | null
-          user_id: string
+          name: string
+          tenant_id: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          endpoint_name: string
-          endpoint_url: string
+          allowed_domains?: string[] | null
+          config?: Json | null
+          created_at?: string
           id?: string
-          type: string
-          updated_at?: string | null
-          user_id: string
+          name: string
+          tenant_id?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          endpoint_name?: string
-          endpoint_url?: string
+          allowed_domains?: string[] | null
+          config?: Json | null
+          created_at?: string
           id?: string
-          type?: string
-          updated_at?: string | null
-          user_id?: string
+          name?: string
+          tenant_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -140,165 +130,301 @@ export type Database = {
         }
         Relationships: []
       }
-      chat_logs: {
+      chatbot_agents: {
         Row: {
-          created_at: string | null
+          allowed_domains: string[] | null
+          config: Json | null
+          created_at: string
           id: string
-          intent: string | null
-          message: string
-          response: string
-          user_id: string
+          name: string
+          tenant_id: string
+          user_id: string | null
         }
         Insert: {
-          created_at?: string | null
+          allowed_domains?: string[] | null
+          config?: Json | null
+          created_at?: string
           id?: string
-          intent?: string | null
-          message: string
-          response: string
-          user_id: string
+          name: string
+          tenant_id: string
+          user_id?: string | null
         }
         Update: {
-          created_at?: string | null
+          allowed_domains?: string[] | null
+          config?: Json | null
+          created_at?: string
           id?: string
-          intent?: string | null
-          message?: string
-          response?: string
-          user_id?: string
+          name?: string
+          tenant_id?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_agents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chatbot_documents: {
+        Row: {
+          agent_id: string | null
+          content: string
+          created_at: string
+          embedding: string | null
+          id: string
+          metadata: Json | null
+          tenant_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          content: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          content?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          tenant_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_documents_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "chatbot_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chatbot_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_chunks: {
+        Row: {
+          content: string
+          embedding: string | null
+          endpoint_id: string | null
+          id: string
+          metadata: Json | null
+          project_id: string
+        }
+        Insert: {
+          content: string
+          embedding?: string | null
+          endpoint_id?: string | null
+          id?: string
+          metadata?: Json | null
+          project_id: string
+        }
+        Update: {
+          content?: string
+          embedding?: string | null
+          endpoint_id?: string | null
+          id?: string
+          metadata?: Json | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_chunks_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "scraped_endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_chunks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       endpoint_configs: {
         Row: {
-          id: string
           base_url: string
-          full_url: string
-          status: string
           created_at: string
+          full_url: string
+          id: string
+          status: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
-          id?: string
           base_url: string
-          full_url: string
-          status?: string
           created_at?: string
+          full_url: string
+          id?: string
+          status?: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          id?: string
           base_url?: string
-          full_url?: string
-          status?: string
           created_at?: string
+          full_url?: string
+          id?: string
+          status?: string
           updated_at?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "endpoint_configs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          active_agent_config_id: string | null
+          agent_config: Json | null
+          created_at: string | null
+          embed_token: string | null
+          id: string
+          name: string
+          status: string | null
+          target_url: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active_agent_config_id?: string | null
+          agent_config?: Json | null
+          created_at?: string | null
+          embed_token?: string | null
+          id?: string
+          name: string
+          status?: string | null
+          target_url: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active_agent_config_id?: string | null
+          agent_config?: Json | null
+          created_at?: string | null
+          embed_token?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+          target_url?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_active_agent_config_id_fkey"
+            columns: ["active_agent_config_id"]
+            isOneToOne: false
+            referencedRelation: "agent_configs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scraped_endpoints: {
         Row: {
+          auth_type: string | null
           id: string
-          config_id: string
+          is_approved: boolean | null
+          project_id: string
+          requires_auth: boolean | null
+          status: string | null
+          type: string | null
           url: string
-          label: string
-          status: string
-          source_url: string | null
-          discovered_at: string
-          created_at: string
         }
         Insert: {
+          auth_type?: string | null
           id?: string
-          config_id: string
+          is_approved?: boolean | null
+          project_id: string
+          requires_auth?: boolean | null
+          status?: string | null
+          type?: string | null
           url: string
-          label: string
-          status?: string
-          source_url?: string | null
-          discovered_at?: string
-          created_at?: string
         }
         Update: {
+          auth_type?: string | null
           id?: string
-          config_id?: string
+          is_approved?: boolean | null
+          project_id?: string
+          requires_auth?: boolean | null
+          status?: string | null
+          type?: string | null
           url?: string
-          label?: string
-          status?: string
-          source_url?: string | null
-          discovered_at?: string
-          created_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "scraped_endpoints_config_id_fkey"
-            columns: ["config_id"]
+            foreignKeyName: "scraped_endpoints_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "endpoint_configs"
+            referencedRelation: "projects"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
-      super_admin_roles: {
+      subscriptions: {
         Row: {
-          created_at: string
+          current_period_end: string | null
           id: string
-          name: string | null
-          permissions: Json | null
+          plan: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          user_id: string
         }
         Insert: {
-          created_at?: string
+          current_period_end?: string | null
           id?: string
-          name?: string | null
-          permissions?: Json | null
+          plan?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          user_id: string
         }
         Update: {
-          created_at?: string
+          current_period_end?: string | null
           id?: string
-          name?: string | null
-          permissions?: Json | null
-        }
-        Relationships: []
-      }
-      super_admins: {
-        Row: {
-          auth_id: string | null
-          created_at: string
-          email: string | null
-          first_name: string | null
-          id: string
-          last_name: string | null
-          password: string | null
-          phone_no: string | null
-          role_id: string | null
-          status: boolean | null
-        }
-        Insert: {
-          auth_id?: string | null
-          created_at?: string
-          email?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          password?: string | null
-          phone_no?: string | null
-          role_id?: string | null
-          status?: boolean | null
-        }
-        Update: {
-          auth_id?: string | null
-          created_at?: string
-          email?: string | null
-          first_name?: string | null
-          id?: string
-          last_name?: string | null
-          password?: string | null
-          phone_no?: string | null
-          role_id?: string | null
-          status?: boolean | null
+          plan?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "super_admins_role_id_fkey"
-            columns: ["role_id"]
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "super_admin_roles"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -352,14 +478,57 @@ export type Database = {
     Functions: {
       match_chatbot_documents: {
         Args: {
-          query_embedding: number[]
           filter_agent_id: string
-          match_threshold: number
           match_count: number
+          match_threshold: number
+          query_embedding: string
         }
         Returns: {
-          id: string
           content: string
+          id: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      match_chunks: {
+        Args: {
+          match_count?: number
+          match_project_id: string
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          endpoint_id: string
+          id: string
+          metadata: Json
+          project_id: string
+          similarity: number
+        }[]
+      }
+      match_documents: {
+        Args: {
+          filter_agent_id: string
+          match_count: number
+          match_threshold: number
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          id: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      match_documents_oai: {
+        Args: {
+          filter_agent_id: string
+          match_count: number
+          match_threshold: number
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          id: string
           metadata: Json
           similarity: number
         }[]
@@ -373,7 +542,6 @@ export type Database = {
     }
   }
 }
-
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
@@ -456,6 +624,40 @@ export type TablesUpdate<
       }
       ? U
       : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

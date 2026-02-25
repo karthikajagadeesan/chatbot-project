@@ -58,4 +58,44 @@ export type EmbedChatPageProps = {
     previewConfig?: PreviewConfig;
 };
 
-export type MessageTimesMap = Record<string, string>;       
+export type MessageTimesMap = Record<string, string>;
+
+// ── Phase 0 Types (EmbedChat) ──────────────────────────────────────────────────
+
+export type PlanTier = 'free' | 'pro' | 'enterprise';
+export type ProjectStatus = 'pending' | 'scraping' | 'ready' | 'error';
+export type EndpointType = 'page' | 'rest_api' | 'graphql' | 'sitemap';
+export type AuthType = 'api_key' | 'bearer' | 'basic' | 'oauth2';
+export type AgentProvider = 'openai' | 'anthropic' | 'gemini' | 'groq';
+export type AgentTone = 'friendly' | 'professional' | 'technical' | 'casual';
+
+export interface FullAgentConfig {
+    persona_name: string;
+    tone: AgentTone;
+    language: string;
+    fallback_message: string;
+    restricted_topics: string[];
+    system_prompt_extra: string;
+    max_response_length: 'short' | 'medium' | 'long';
+    show_sources: boolean;
+    greeting_message: string;
+    provider: AgentProvider;
+    model: string;
+    use_managed_key: boolean;
+}
+
+export interface ProjectAgentConfig {
+    id: string;
+    project_id: string;
+    name: string;
+    provider: AgentProvider;
+    model: string;
+    openai_api_key: string | null;
+    gemini_api_key: string | null;
+    anthropic_api_key: string | null;
+    groq_api_key: string | null;
+    embedding_api_key: string | null;
+    base_prompt: string;
+    created_at: string;
+    updated_at: string;
+}
