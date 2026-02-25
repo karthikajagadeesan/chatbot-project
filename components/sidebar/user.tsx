@@ -50,13 +50,13 @@ const menuItems = [
     icon: LayoutDashboardIcon,
   },
   {
-    label: "Chatbots",
-    href: "/agents",
+    label: "Configure",
+    href: "/configure",
     icon: MessageSquare,
   },
   {
-    label: "Configure",
-    href: "/configure",
+    label: "Chatbots",
+    href: "/agents",
     icon: UsersIcon,
   },
   {

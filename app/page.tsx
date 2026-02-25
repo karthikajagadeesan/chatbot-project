@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { Button } from '@/components/ui/button';
 
 // Constants for maintainable values
 const STATS = {
@@ -36,6 +39,30 @@ const FEATURES = [
 const CURRENT_YEAR = new Date().getFullYear();
 
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
+    );
+
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setIsLoggedIn(!!data.user);
+    };
+
+    checkUser();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      checkUser();
+    });
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-dark-300">
       {/* Navigation */}
@@ -60,12 +87,19 @@ export default function HomePage() {
             ))}
           </div>
 
-          <Link 
-            href="/dashboard"
-            className="btn-primary"
-          >
-            Try for Free
-          </Link>
+    {isLoggedIn ? (
+      <Button asChild>
+        <Link href="/dashboard">
+          My Account
+        </Link>
+      </Button>
+    ) : (
+      <Button asChild>
+        <Link href="/sign-in">
+          Login
+        </Link>
+      </Button>
+    )}
         </div>
       </nav>
 
@@ -86,11 +120,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="flex ml-36">
-                <Link href="/auth/signup" className="btn-primary text-lg px-8 py-3">
-                  Get Started
-                </Link>
-              </div>
+             
 
               <div className="flex items-center gap-8 pt-4">
                 <div>
