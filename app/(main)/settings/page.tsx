@@ -1,15 +1,11 @@
-
 import RoleGateway from "@/helpers/role-gateway";
-import AdminSettingsPage from "./admin";
-import SuperAdminSettingsPage from "./superadmin";
-import ClientSettingsPage from "./client";
-
-export default function SettingsPage() {
+import SuperAdminSettings from "./superadmin";
+import UserSettings from "./user";
+export default function settings() {
     return (
         <RoleGateway
-            superadmin={<SuperAdminSettingsPage />}
-            admin={<AdminSettingsPage />}
-            user={<ClientSettingsPage />}
+            superadmin={<SuperAdminSettings />}
+            user={<UserSettings />}
         />
     )
 }

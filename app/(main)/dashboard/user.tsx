@@ -41,7 +41,7 @@ export default function UserDashboard() {
           { label: "Analytics" },
         ]}
         specialButtons={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Button variant="outline" className="text-sm">
               Last 30 Days
             </Button>   
@@ -52,8 +52,8 @@ export default function UserDashboard() {
         }
       />
 
-<div className="space-y-5 ">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+<div className="space-y-5">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader>
             <CardDescription>Total Chats</CardDescription>
@@ -121,7 +121,7 @@ export default function UserDashboard() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <CardTitle>Chatbot Activity</CardTitle>
             </div>
@@ -133,7 +133,7 @@ export default function UserDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig} className="h-[250px] w-full">
+          <ChartContainer config={chartConfig} className="h-[200px] sm:h-[250px] w-full">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis

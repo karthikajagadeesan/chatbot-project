@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      //  Chatbot Tables
+      chatbot_agents: {
+        Row: {
+          id: string
+          tenant_id: string
+          name: string
+          config: Json
+          allowed_domains: string[]
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          name: string
+          config?: Json
+          allowed_domains?: string[]
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          name?: string
+          config?: Json
+          allowed_domains?: string[]
+          created_at?: string
+        }
+        Relationships: []
+      }
+      chatbot_documents: {
+        Row: {
+          id: string
+          tenant_id: string
+          agent_id: string | null
+          content: string
+          embedding: number[] | null
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          agent_id?: string | null
+          content: string
+          embedding?: number[] | null
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          agent_id?: string | null
+          content?: string
+          embedding?: number[] | null
+          metadata?: Json
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chatbot_documents_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "chatbot_agents"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       api_endpoints: {
         Row: {
           created_at: string | null
@@ -100,6 +166,74 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      endpoint_configs: {
+        Row: {
+          id: string
+          base_url: string
+          full_url: string
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          base_url: string
+          full_url: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          base_url?: string
+          full_url?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      scraped_endpoints: {
+        Row: {
+          id: string
+          config_id: string
+          url: string
+          label: string
+          status: string
+          source_url: string | null
+          discovered_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          config_id: string
+          url: string
+          label: string
+          status?: string
+          source_url?: string | null
+          discovered_at?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          config_id?: string
+          url?: string
+          label?: string
+          status?: string
+          source_url?: string | null
+          discovered_at?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scraped_endpoints_config_id_fkey"
+            columns: ["config_id"]
+            isOneToOne: false
+            referencedRelation: "endpoint_configs"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       super_admin_roles: {
         Row: {
@@ -216,7 +350,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_chatbot_documents: {
+        Args: {
+          query_embedding: number[]
+          filter_agent_id: string
+          match_threshold: number
+          match_count: number
+        }
+        Returns: {
+          id: string
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
@@ -226,6 +373,7 @@ export type Database = {
     }
   }
 }
+
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
@@ -308,40 +456,6 @@ export type TablesUpdate<
       }
       ? U
       : never
-    : never
-
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
