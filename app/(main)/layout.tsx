@@ -12,7 +12,7 @@ export default function ProtectedLayout({
             <Sidebar />
             <div className="flex flex-1 flex-col border rounded-lg min-w-0">
                 <MobileHeader />
-                <div className="flex flex-1 flex-col overflow-y-auto px-3 py-2 md:p-2">
+                <div className="flex flex-1 flex-col overflow-y-auto px-3 py-2 md:p-3">
                     {children}
                 </div>
             </div>

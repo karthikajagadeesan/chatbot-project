@@ -23,7 +23,7 @@ export async function getSuperAdminSession() {
     const supabase = await createServer(cookies());
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) return { success: false, message: error?.message || "Failed to get user" }
-    const { data, error: superadminError } = await supabase.from("super_admins").select("*").eq("auth_id", user.id).maybeSingle();
+    const { data, error: superadminError } = await (supabase.from("super_admins" as any).select("*").eq("auth_id", user.id).maybeSingle() as any);
     if (superadminError) return { success: false, message: superadminError.message || "Failed to get superadmin" }
     return { success: true, data, message: "Session retrieved successfully" }
 }

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tables } from "@/type/database-type";
 
-export default function Logo({ settings }: { settings: Partial<Tables<'general_settings'>> }) {
+export default function Logo({ settings }: { settings: Partial<Tables<'app_settings'>> }) {
     const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 

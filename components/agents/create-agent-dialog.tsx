@@ -15,7 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { createAgent } from "@/app/(main)/agents/action";
+// Agents module removed — this dialog is no longer in use
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createAgent = async (_: { name: string }): Promise<any> => ({ success: false, message: "Not implemented" })
 
 interface CreateAgentDialogProps {
     onSuccess?: () => void;

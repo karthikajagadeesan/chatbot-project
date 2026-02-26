@@ -7,7 +7,7 @@ import { z } from "zod";
 const agentSchema = z.object({
     name: z.string().min(1, "Name is required"),
     allowed_domains: z.array(z.string()).optional().default([]),
-    config: z.record(z.any()).optional().default({
+    config: z.record(z.string(), z.any()).optional().default({
         primaryColor: "#3b82f6",
         welcomeMessage: "Hello! How can I help you today?",
         botName: "AI Assistant"

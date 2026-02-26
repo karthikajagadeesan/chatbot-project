@@ -23,7 +23,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${figtree.variable} antialiased`}
+        className={`${figtree.className} antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider

@@ -26,6 +26,7 @@ import {
   UsersIcon,
   FileTextIcon,
   SettingsIcon,
+  BadgeCheck,
   LogOutIcon,
   PanelLeftIcon,
   CalendarDaysIcon,
@@ -34,7 +35,9 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronRight,
-  MessageSquare
+  MessageSquare,
+  FolderOpen,
+  Bot
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -50,19 +53,19 @@ const menuItems = [
     icon: LayoutDashboardIcon,
   },
   {
-    label: "Configure",
-    href: "/configure",
-    icon: MessageSquare,
-  },
-  {
     label: "Chatbots",
-    href: "/agents",
-    icon: UsersIcon,
+    href: "/chatbots",
+    icon: Bot,
   },
   {
-    label: "Settings",
-    href: "/settings",
-    icon: SettingsIcon,
+    label: "Membership",
+    href: "/memberships",
+    icon: BadgeCheck,
+  },
+  {
+    label: "Profile",
+    href: "/profile",
+    icon: UserStarIcon,
   },
 ];
 
@@ -139,6 +142,9 @@ export default function AdminSidebar() {
       toast.error(response.message);
     }
   };
+  if (pathname === "/onboarding") {
+    return null;
+  }
 
   return (
     <>

@@ -11,7 +11,7 @@ import type { Tables } from "@/type/database-type";
 
 const queryClient = new QueryClient();
 
-export default function SuperAdminGlobalProvider({ children, appSettings, subdomain, user }: { children: ReactNode, appSettings: Tables<'app_settings'>, subdomain: Subdomain | null, user?: Tables<'super_admins'> | null }) {
+export default function SuperAdminGlobalProvider({ children, appSettings, subdomain, user }: { children: ReactNode, appSettings: Tables<'app_settings'> | null, subdomain: Subdomain | null, user?: any | null }) {
     const setSubdomain = usegeneralStore((state) => state.setSubdomain);
     const setSuperadmin = useAuthStore((state) => state.setSuperadmin);
     const setAppSettings = useAppSettingsStore((state) => state.setSettings);

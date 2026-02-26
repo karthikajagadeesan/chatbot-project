@@ -14,8 +14,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Eye, EyeOff } from "lucide-react"
-import { signUpUser } from "./action"
 import { useAuthStore } from "@/store/user/authStore"
+
 
 export default function SignUpUser() {
   const router = useRouter()
@@ -98,14 +98,20 @@ export default function SignUpUser() {
 
     setIsLoading(true)
     try {
-      const response = await signUpUser({ first_name, last_name, phone_no, email, password })
-      if (response.success && response.data) {
-        toast.success(response.message)
-        setUser(response.data)
-        router.push("/dashboard")
+      const response = await fetch("/api/users/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ first_name, last_name, phone_no, email, password }),
+      });
+      const responseData = await response.json();
+
+      if (response.ok && responseData.success && responseData.data) {
+        toast.success(responseData.message)
+        setUser(responseData.data)
+        router.push("/onboarding")
       } else {
-        setError(response.message)
-        toast.error(response.message)
+        setError(responseData.message || "An error occurred")
+        toast.error(responseData.message || "An error occurred")
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred"
@@ -119,12 +125,7 @@ export default function SignUpUser() {
   return (
     <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Fill in the form below to create your account
-          </p>
-        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <Field>
             <FieldLabel htmlFor="first_name" required>First Name</FieldLabel>
