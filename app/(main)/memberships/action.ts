@@ -21,4 +21,3 @@ export async function updateSuperadminAppSettings(data: Tables<"app_settings">) 
     return { success: true }
 }
 
-
