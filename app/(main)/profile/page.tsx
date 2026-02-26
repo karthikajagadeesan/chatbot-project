@@ -1,5 +1,5 @@
 import RoleGateway from "@/helpers/role-gateway";
-import UserSettings from "../settings/user";
+import UserSettings from "./user";
 
 export default function ProfilePage() {
     return (

@@ -42,7 +42,7 @@ export default function SuperAdminProjects() {
     return (
         <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-8">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight">All Projects</h1>
+                <h1 className="text-3xl font-bold tracking-tight">All Chatbots</h1>
                 <p className="text-muted-foreground mt-1 text-sm">
                     Platform-wide overview of all created chatbots.
                 </p>
@@ -86,10 +86,11 @@ export default function SuperAdminProjects() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize
-                        ${project.status === 'ready' ? 'bg-green-500/10 text-green-500' :
+                        ${project.status === 'live' || project.status === 'ready' ? 'bg-green-500/10 text-green-500' :
                                                 project.status === 'scraping' ? 'bg-blue-500/10 text-blue-500' :
-                                                    project.status === 'error' ? 'bg-red-500/10 text-red-500' :
-                                                        'bg-yellow-500/10 text-yellow-500'}`}>
+                                                    project.status === 'draft' ? 'bg-indigo-500/10 text-indigo-500' :
+                                                        project.status === 'error' ? 'bg-red-500/10 text-red-500' :
+                                                            'bg-yellow-500/10 text-yellow-500'}`}>
                                             {project.status || 'pending'}
                                         </span>
                                     </td>

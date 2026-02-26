@@ -1,7 +1,5 @@
 "use client"
-import { useState, FormEvent, useEffect, useCallback } from "react"
-import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport } from "ai"
+import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -14,7 +12,7 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select"
 import {
-    Eye, EyeOff, Key, Loader2, Save, Bot, Send, Plus, CheckCircle2, Trash2, Pencil
+    Eye, EyeOff, Key, Loader2, Save, Bot, Plus, CheckCircle2, Trash2, Pencil
 } from "lucide-react"
 import type { AgentProvider } from "@/type/general-type"
 import type { ProjectAgentConfig } from "@/type/general-type"
@@ -82,15 +80,6 @@ export default function AgentConfigView({ project }: AgentConfigViewProps) {
     const [showApiKey, setShowApiKey] = useState(false)
     const [showEmbeddingKey, setShowEmbeddingKey] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
-
-    // Chat state
-    const [input, setInput] = useState("")
-    const { messages, sendMessage, status, error } = useChat({
-        id: project.id,
-        transport: new DefaultChatTransport({ api: "/api/chat", body: { projectId: project.id } })
-    })
-    if (error) toast.error(error.message || "Chat error")
-    const isChatLoading = status === 'submitted' || status === 'streaming'
 
     const loadConfigs = useCallback(async () => {
         setIsLoading(true)
@@ -187,19 +176,12 @@ export default function AgentConfigView({ project }: AgentConfigViewProps) {
         }
     }
 
-    const onSubmit = (e: FormEvent) => {
-        e.preventDefault()
-        if (!input.trim() || isChatLoading) return
-        sendMessage({ parts: [{ type: 'text', text: input }] })
-        setInput("")
-    }
-
     return (
         <>
             {/* ── Editor Sheet ───────────────────────────────────── */}
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
                 <SheetContent className="w-full sm:max-w-lg overflow-y-auto space-y-6 px-4">
-                    <SheetHeader>
+                    <SheetHeader className="p-0 pt-4 pb-2">
                         <SheetTitle>{editingConfigId ? "Edit Agent Config" : "New Agent Config"}</SheetTitle>
                         <SheetDescription>Configure the AI provider, model, API keys, and system prompt for this agent.</SheetDescription>
                     </SheetHeader>
@@ -298,117 +280,65 @@ export default function AgentConfigView({ project }: AgentConfigViewProps) {
                 </SheetContent>
             </Sheet>
 
-            {/* ── Main Layout ────────────────────────────────────── */}
-            <div className="grid md:grid-cols-2 gap-8 items-start">
-                {/* Left: Config List */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-semibold tracking-tight">AI Agent Configurations</h2>
-                            <p className="text-sm text-muted-foreground mt-1">Set one config as active — it powers chat and knowledge base training.</p>
-                        </div>
-                        <Button variant="outline" size="sm" onClick={openNew}>
-                            <Plus className="w-4 h-4 mr-1" /> New
-                        </Button>
-                    </div>
-
-                    {isLoading ? (
-                        <div className="flex items-center gap-2 text-muted-foreground text-sm py-6">
-                            <Loader2 className="w-4 h-4 animate-spin" /> Loading...
-                        </div>
-                    ) : configs.length === 0 ? (
-                        <div className="text-center py-12 border border-dashed rounded-xl text-muted-foreground space-y-3">
-                            <Bot className="w-8 h-8 mx-auto opacity-30" />
-                            <p className="text-sm">No agent configs yet.</p>
-                            <Button size="sm" variant="outline" onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Create first config</Button>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {configs.map(cfg => (
-                                <div key={cfg.id}
-                                    className={`flex items-center gap-3 px-3 py-3 rounded-lg border transition-all ${cfg.id === activeConfigId ? "border-primary/50 bg-primary/5" : "border-border"}`}
-                                >
-                                    <Bot className="w-4 h-4 shrink-0 text-muted-foreground" />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{cfg.name}</p>
-                                        <p className="text-xs text-muted-foreground capitalize">
-                                            {PROVIDER_LABELS[cfg.provider as AgentProvider] ?? cfg.provider} · {cfg.model}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                        {cfg.id === activeConfigId ? (
-                                            <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
-                                                <CheckCircle2 className="w-3 h-3" /> Active
-                                            </span>
-                                        ) : (
-                                            <Button size="sm" variant="ghost" className="text-xs h-7 px-2"
-                                                onClick={() => handleSetActive(cfg.id)}>
-                                                Set Active
-                                            </Button>
-                                        )}
-                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground"
-                                            onClick={() => openEdit(cfg)}>
-                                            <Pencil className="w-3.5 h-3.5" />
-                                        </Button>
-                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                                            onClick={() => handleDelete(cfg.id)}>
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Right: Sandbox Chat */}
-                <div className="flex flex-col gap-4 sticky top-6">
+            {/* ── Config List ────────────────────────────────────── */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2">
-                            <Bot className="w-5 h-5 text-primary" /> Sandbox Testing
-                        </h2>
-                        {activeConfigId && (() => {
-                            const active = configs.find(c => c.id === activeConfigId)
-                            return active ? (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    Uses <span className="font-semibold text-primary">{PROVIDER_LABELS[active.provider as AgentProvider] ?? active.provider}</span> / <span className="font-semibold text-primary">{active.model}</span>
-                                </p>
-                            ) : null
-                        })()}
+                        <h2 className="text-xl font-semibold tracking-tight">AI Agent Configurations</h2>
+                        <p className="text-sm text-muted-foreground mt-1">Set one config as active — it powers chat and knowledge base training.</p>
                     </div>
-
-                    <div className="border rounded-xl bg-background flex flex-col h-[480px]">
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                            {messages.length === 0 && (
-                                <p className="text-xs text-muted-foreground text-center mt-8">Ask a question about your custom data...</p>
-                            )}
-                            {messages.map(m => (
-                                <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    {m.role !== 'user' && <Bot className="w-6 h-6 mr-2 shrink-0 mt-1 text-primary" />}
-                                    <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${m.role === 'user' ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-secondary text-foreground rounded-bl-sm"}`}>
-                                        {m.parts?.map((p, i) => p.type === 'text' ? <span key={i}>{p.text}</span> : null)}
-                                    </div>
-                                </div>
-                            ))}
-                            {isChatLoading && (
-                                <div className="flex justify-start">
-                                    <Bot className="w-6 h-6 mr-2 shrink-0 mt-1 text-primary" />
-                                    <div className="bg-secondary rounded-2xl rounded-bl-sm px-4 py-2.5">
-                                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <form onSubmit={onSubmit} className="p-3 border-t flex gap-2">
-                            <Input value={input} onChange={e => setInput(e.target.value)}
-                                placeholder="Ask a question about your custom data..."
-                                className="flex-1 text-sm" disabled={isChatLoading} />
-                            <Button type="submit" size="icon" disabled={isChatLoading || !input.trim()}>
-                                <Send className="w-4 h-4" />
-                            </Button>
-                        </form>
-                    </div>
+                    <Button variant="outline" size="sm" onClick={openNew}>
+                        <Plus className="w-4 h-4 mr-1" /> New
+                    </Button>
                 </div>
+
+                {isLoading ? (
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm py-6">
+                        <Loader2 className="w-4 h-4 animate-spin" /> Loading...
+                    </div>
+                ) : configs.length === 0 ? (
+                    <div className="text-center py-12 border border-dashed rounded-xl text-muted-foreground space-y-3">
+                        <Bot className="w-8 h-8 mx-auto opacity-30" />
+                        <p className="text-sm">No agent configs yet.</p>
+                        <Button size="sm" variant="outline" onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Create first config</Button>
+                    </div>
+                ) : (
+                    <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {configs.map(cfg => (
+                            <div key={cfg.id}
+                                className={`flex items-center gap-3 px-3 py-3 rounded-lg border transition-all ${cfg.id === activeConfigId ? "border-primary/50 bg-primary/5" : "border-border"}`}
+                            >
+                                <Bot className="w-4 h-4 shrink-0 text-muted-foreground" />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{cfg.name}</p>
+                                    <p className="text-xs text-muted-foreground capitalize">
+                                        {PROVIDER_LABELS[cfg.provider as AgentProvider] ?? cfg.provider} · {cfg.model}
+                                    </p>
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                    {cfg.id === activeConfigId ? (
+                                        <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                                            <CheckCircle2 className="w-3 h-3" /> Active
+                                        </span>
+                                    ) : (
+                                        <Button size="sm" variant="ghost" className="text-xs h-7 px-2"
+                                            onClick={() => handleSetActive(cfg.id)}>
+                                            Set Active
+                                        </Button>
+                                    )}
+                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground"
+                                        onClick={() => openEdit(cfg)}>
+                                        <Pencil className="w-3.5 h-3.5" />
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                        onClick={() => handleDelete(cfg.id)}>
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </>
     )

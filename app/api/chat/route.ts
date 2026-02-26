@@ -19,16 +19,37 @@ export async function POST(req: Request) {
 
         const supabase = await createServer(cookies())
 
-        // 1. Fetch project to get active_agent_config_id
+        // 1. Fetch project to get active_agent_config_id and target_url
         const { data: project, error: projectError } = await supabase
             .from("projects")
-            .select("id, active_agent_config_id")
+            .select("id, active_agent_config_id, target_url")
             .eq("id", projectId)
             .single()
 
         if (projectError || !project) {
             return new Response("Project not found", { status: 404 })
         }
+
+        // ── Domain allowlist: only our app + project's target_url may call this ──
+        const origin = req.headers.get("origin") ?? ""
+        if (origin) {
+            const allowedHosts = new Set<string>(["localhost", "127.0.0.1"])
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL
+            if (appUrl) {
+                try { allowedHosts.add(new URL(appUrl).hostname) } catch { /* ignore */ }
+            }
+            if (project.target_url) {
+                try { allowedHosts.add(new URL(project.target_url).hostname) } catch { /* ignore */ }
+            }
+            const requestHost = new URL(origin).hostname
+            const isAllowed = [...allowedHosts].some(
+                h => requestHost === h || requestHost.endsWith(`.${h}`)
+            )
+            if (!isAllowed) {
+                return new Response("Domain not authorised for this project", { status: 403 })
+            }
+        }
+        // ────────────────────────────────────────────────────────────────────
 
         // 2. Fetch active agent config row
         type AgentConfigRow = {
@@ -136,14 +157,29 @@ export async function POST(req: Request) {
         }
 
         // 5. Search vector store (only if embedding succeeded)
-        let chunks: any[] = []
+        let chunks: { content: string; endpoint_id: string | null }[] = []
         if (embedding.length > 0) {
+            // Fetch approved endpoint IDs for this project first
+            const { data: approvedEndpoints } = await supabase
+                .from("scraped_endpoints")
+                .select("id")
+                .eq("project_id", projectId)
+                .eq("is_approved", true)
+
+            const approvedIds = new Set((approvedEndpoints ?? []).map((e) => e.id))
+
             const { data } = await supabase.rpc("match_chunks", {
                 query_embedding: JSON.stringify(embedding),
-                match_count: 5,
+                match_count: 10, // fetch more so filtering still yields ~5 good results
                 match_project_id: projectId,
             })
-            chunks = data ?? []
+
+            // Only keep chunks from approved endpoints
+            // Chunks with null endpoint_id are manually added content — always allowed
+            chunks = (data ?? []).filter(
+                (c: { endpoint_id: string | null }) =>
+                    c.endpoint_id === null || approvedIds.has(c.endpoint_id)
+            ).slice(0, 5)
         }
 
         // 6. Build system prompt with retrieved context

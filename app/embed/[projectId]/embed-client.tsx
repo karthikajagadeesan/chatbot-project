@@ -1,6 +1,7 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
+import type { UIMessage } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
 import { Button } from "@/components/ui/button"
 import { Send, Bot, RefreshCw, X, Loader2 } from "lucide-react"
@@ -9,12 +10,22 @@ interface EmbedChatInterfaceProps {
     projectId: string
     botName: string
     primaryColor: string
+    welcomeMessage: string
+    inputPlaceholder: string
+    poweredByText: string
 }
 
-export default function EmbedChatInterface({ projectId, botName, primaryColor }: EmbedChatInterfaceProps) {
+export default function EmbedChatInterface({
+    projectId,
+    botName,
+    primaryColor,
+    welcomeMessage,
+    inputPlaceholder,
+    poweredByText,
+}: EmbedChatInterfaceProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const [input, setInput] = useState("")
-    const [isWidgetOpen, setIsWidgetOpen] = useState(true)
+    const [inputFocused, setInputFocused] = useState(false)
 
     const { messages, sendMessage, status, setMessages } = useChat({
         id: projectId,
@@ -27,38 +38,36 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
     const isChatLoading = status === 'submitted' || status === 'streaming'
 
     useEffect(() => {
-        // Set initial greeting only if the chat is empty
         if (messages.length === 0 && !isChatLoading) {
             setMessages([
-                { id: 'welcome', role: 'assistant', parts: [{ type: 'text', text: `Hi there! I'm ${botName}. How can I help you today?` }] } as any
+                { id: 'welcome', role: 'assistant', parts: [{ type: 'text', text: welcomeMessage }] } as UIMessage
             ])
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // Auto-scroll to bottom of chat
+    // Auto-scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [messages])
 
-    // Listen to parent wrapper to handle focus/opening
     useEffect(() => {
         const handleMessage = (e: MessageEvent) => {
-            if (e.data?.type === 'WIDGET_OPENED') {
-                setIsWidgetOpen(true)
-            }
+            if (e.data?.type === 'WIDGET_OPENED') setIsWidgetOpen(true)
         }
         window.addEventListener('message', handleMessage)
         return () => window.removeEventListener('message', handleMessage)
     }, [])
 
+    const [isWidgetOpen, setIsWidgetOpen] = useState(true)
+
     const handleClose = () => {
-        // Post message up to the parent window to hide the widget iframe wrapper
         window.parent.postMessage({ type: 'CLOSE_WIDGET' }, '*')
     }
 
     const handleClearChat = () => {
         setMessages([
-            { id: 'welcome', role: 'assistant', parts: [{ type: 'text', text: `Chat cleared. How can I help you today?` }] }
+            { id: 'welcome-reset', role: 'assistant', parts: [{ type: 'text', text: welcomeMessage }] } as UIMessage
         ])
     }
 
@@ -73,7 +82,7 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
         <div className="flex flex-col h-screen w-full bg-background border rounded-xl overflow-hidden shadow-2xl">
             {/* Header */}
             <div
-                className="flex items-center justify-between px-4 py-3 text-white"
+                className="flex items-center justify-between px-4 py-3 text-white shrink-0"
                 style={{ backgroundColor: primaryColor }}
             >
                 <div className="flex items-center gap-2">
@@ -111,8 +120,8 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
                 {messages.map((message) => {
                     const textContent = (message.parts || [])
                         .filter((p) => p.type === 'text')
-                        .map((p: any) => p.text)
-                        .join('\n') || (message as any).content
+                        .map((p) => (p as { type: 'text'; text: string }).text)
+                        .join('\n') || (message as { content?: string }).content
 
                     return (
                         <div
@@ -120,14 +129,15 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
                             className={`flex gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                         >
                             {message.role !== 'user' && (
-                                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ backgroundColor: `${primaryColor}20` }}>
+                                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1"
+                                    style={{ backgroundColor: `${primaryColor}20` }}>
                                     <Bot className="w-3.5 h-3.5" style={{ color: primaryColor }} />
                                 </div>
                             )}
                             <div
-                                className={`px-4 py-2.5 max-w-[85%] text-sm shadow-sm ${message.role === 'user'
+                                className={`px-4 py-2.5 max-w-[85%] text-sm ${message.role === 'user'
                                     ? 'text-white rounded-2xl rounded-tr-sm'
-                                    : 'bg-card text-card-foreground border rounded-2xl rounded-tl-sm prose prose-sm dark:prose-invert'
+                                    : 'bg-card text-card-foreground border rounded-2xl rounded-tl-sm'
                                     }`}
                                 style={message.role === 'user' ? { backgroundColor: primaryColor } : {}}
                             >
@@ -139,13 +149,14 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
 
                 {isChatLoading && (
                     <div className="flex gap-2 justify-start">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ backgroundColor: `${primaryColor}20` }}>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1"
+                            style={{ backgroundColor: `${primaryColor}20` }}>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: primaryColor }} />
                         </div>
-                        <div className="px-4 py-3 bg-card border rounded-2xl rounded-tl-sm text-sm flex gap-1 items-center shadow-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                        <div className="px-4 py-3 bg-card border rounded-2xl rounded-tl-sm text-sm flex gap-1 items-center">
+                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
                     </div>
                 )}
@@ -153,13 +164,16 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
             </div>
 
             {/* Input Form */}
-            <form onSubmit={onSubmit} className="p-3 bg-background border-t">
+            <form onSubmit={onSubmit} className="p-3 bg-background border-t shrink-0">
                 <div className="relative flex items-center">
                     <input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Type your message..."
-                        className="w-full pl-4 pr-12 py-3 rounded-full border bg-muted/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary text-sm transition-all"
+                        placeholder={inputPlaceholder}
+                        className="w-full pl-4 pr-12 py-3 rounded-full border bg-muted/50 text-sm transition-all outline-none"
+                        style={inputFocused ? { boxShadow: `0 0 0 2px ${primaryColor}` } : {}}
+                        onFocus={() => setInputFocused(true)}
+                        onBlur={() => setInputFocused(false)}
                         disabled={isChatLoading}
                     />
                     <Button
@@ -172,9 +186,11 @@ export default function EmbedChatInterface({ projectId, botName, primaryColor }:
                         <Send className="w-4 h-4 text-white" />
                     </Button>
                 </div>
-                <div className="text-center mt-2">
-                    <span className="text-[10px] text-muted-foreground">Powered by <a href="#" className="font-semibold" style={{ color: primaryColor }}>EmbedChat</a></span>
-                </div>
+                {poweredByText && (
+                    <div className="text-center mt-2">
+                        <span className="text-[10px] text-muted-foreground">{poweredByText}</span>
+                    </div>
+                )}
             </form>
         </div>
     )

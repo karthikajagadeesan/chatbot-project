@@ -7,7 +7,7 @@ import { Globe, Settings, ExternalLink } from "lucide-react"
 export function ProjectCard({ project }: { project: Tables<"projects"> }) {
     const getStatusColor = (status: string | null) => {
         switch (status) {
-            case "ready": return "bg-green-500/10 text-green-500"
+            case "live": return "bg-green-500/10 text-green-500"
             case "scraping": return "bg-blue-500/10 text-blue-500"
             case "error": return "bg-red-500/10 text-red-500"
             default: return "bg-yellow-500/10 text-yellow-500"
@@ -32,13 +32,13 @@ export function ProjectCard({ project }: { project: Tables<"projects"> }) {
             </CardContent>
             <CardFooter className="pt-0 flex gap-2 w-full mt-auto">
                 <Button variant="secondary" size="sm" className="flex-1" asChild>
-                    <Link href={`/projects/${project.id}`}>
+                    <Link href={`/chatbots/${project.id}`}>
                         <Settings className="w-4 h-4 mr-2" />
                         Manage
                     </Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                    <Link href={`/projects/${project.id}?tab=embed`}>
+                    <Link href={`/chatbots/${project.id}?tab=embed`}>
                         <ExternalLink className="w-4 h-4 mr-2" />
                         Embed
                     </Link>

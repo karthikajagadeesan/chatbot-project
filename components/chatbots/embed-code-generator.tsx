@@ -9,12 +9,13 @@ interface EmbedCodeGeneratorProps {
 
 export default function EmbedCodeGenerator({ projectId }: EmbedCodeGeneratorProps) {
     const [copied, setCopied] = useState(false)
-    const [baseUrl, setBaseUrl] = useState("http://localhost:3000") // Fallback
+    const [baseUrl, setBaseUrl] = useState(
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    )
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setBaseUrl(window.location.origin)
-        }
+        // Prefer the explicitly configured production URL; else use current origin
+        setBaseUrl(process.env.NEXT_PUBLIC_APP_URL || window.location.origin)
     }, [])
 
     const widgetScriptUrl = `${baseUrl}/widget.js`

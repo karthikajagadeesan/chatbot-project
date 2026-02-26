@@ -132,3 +132,57 @@ export async function updateProjectAction(projectId: string, updates: Partial<Ta
         return { success: false, message: error.message || "An unexpected error occurred" };
     }
 }
+
+export async function checkProjectCompletenessAction(projectId: string): Promise<Response<{ isComplete: boolean; missing: string[] }>> {
+    try {
+        const supabase = await createServer(cookies());
+
+        // 1. Check for active agent config
+        const { data: project, error: projectError } = await supabase
+            .from('projects')
+            .select('active_agent_config_id')
+            .eq('id', projectId)
+            .single();
+
+        if (projectError) throw new Error(projectError.message);
+
+        // 2. Check for knowledge base content (processed chunks)
+        const { count: chunkCount, error: countError } = await supabase
+            .from('content_chunks')
+            .select('*', { count: 'exact', head: true })
+            .eq('project_id', projectId);
+
+        if (countError) throw new Error(countError.message);
+
+        // 3. Check for scraped endpoints (to see if they just need to train)
+        const { count: endpointCount, error: endpointError } = await supabase
+            .from('scraped_endpoints')
+            .select('*', { count: 'exact', head: true })
+            .eq('project_id', projectId);
+
+        if (endpointError) throw new Error(endpointError.message);
+
+        const missing = [];
+        if (!project.active_agent_config_id) missing.push("Agent Configuration");
+
+        if (!chunkCount || chunkCount === 0) {
+            if (endpointCount && endpointCount > 0) {
+                missing.push("Knowledge Base Training (Train Agent)");
+            } else {
+                missing.push("Knowledge Base Content (Scan Website)");
+            }
+        }
+
+        return {
+            success: true,
+            message: "Completeness check performed",
+            data: {
+                isComplete: missing.length === 0,
+                missing
+            }
+        };
+    } catch (error: any) {
+        return { success: false, message: error.message || "An unexpected error occurred" };
+    }
+}
+

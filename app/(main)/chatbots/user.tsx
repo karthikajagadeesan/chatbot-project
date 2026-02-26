@@ -66,7 +66,7 @@ export default function UserProjects() {
         setProjects([res.data, ...projects])
         setDialogOpen(false)
         setIsCreating(false)
-        router.push(`/projects/${res.data.id}`)
+        router.push(`/chatbots/${res.data.id}`)
     }
 
     if (isLoading) {
@@ -79,11 +79,11 @@ export default function UserProjects() {
 
     return (
         <div className="space-y-6">
-            <Header icon={PlusCircle} heading="Projects" description="Manage your projects"
+            <Header icon={PlusCircle} heading="Chatbots" description="Manage your chatbots"
                 specialButtons={(
                     <Button onClick={openDialog}>
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        New Project
+                        New Chatbot
                     </Button>
                 )}
             />
@@ -93,11 +93,11 @@ export default function UserProjects() {
                     <div className="bg-primary/10 p-3 rounded-full mb-4">
                         <PlusCircle className="w-6 h-6 text-primary" />
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">No projects yet</h2>
+                    <h2 className="text-xl font-semibold mb-2">No Chatbots yet</h2>
                     <p className="text-muted-foreground max-w-sm mb-6">
-                        Get started by creating your first chatbot project and training your AI on your website data.
+                        Get started by creating your first chatbot and training your AI on your website data.
                     </p>
-                    <Button onClick={openDialog}>Create Project</Button>
+                    <Button onClick={openDialog}>Create Chatbot</Button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
